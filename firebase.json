@@ -1,0 +1,8 @@
+{
+  "firestore": [
+    {
+      "database": "ai-studio-android-royalarc-91bdb386-77a7-4708-b3bd-81438111968f",
+      "rules": "firestore.rules"
+    }
+  ]
+}

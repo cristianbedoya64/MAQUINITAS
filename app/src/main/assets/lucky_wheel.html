@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lucky Wheel Arcade</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background: radial-gradient(circle at 50% 30%, #2A1752, #120924 95%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #FFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    .header-banner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .trophy-img {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2px solid #FFD700;
+      box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 900;
+      color: #FFD700;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.7);
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #54DDFC;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Wheel Container */
+    .wheel-wrapper {
+      position: relative;
+      margin: 16px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(245, 158, 11, 0.5), 0 0 10px rgba(6, 182, 212, 0.6);
+      border: 6px solid #FFD700;
+    }
+
+    /* Wheel Pointer Indicator */
+    .wheel-pointer {
+      position: absolute;
+      top: -14px;
+      width: 0;
+      height: 0;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-top: 32px solid #EC4899;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) drop-shadow(0 0 8px #EC4899);
+      z-index: 10;
+    }
+
+    .wheel-center-cap {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      background: radial-gradient(circle, #FFD700 30%, #F59E0B 90%);
+      border: 3px solid #FFF;
+      border-radius: 50%;
+      box-shadow: 0 0 14px rgba(255,215,0,0.8);
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    /* Spin Button */
+    .btn-spin {
+      background: linear-gradient(180deg, #FFD700 0%, #F59E0B 100%);
+      color: #472A00;
+      font-size: 19px;
+      font-weight: 900;
+      border: none;
+      border-radius: 9999px;
+      padding: 14px 44px;
+      cursor: pointer;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 5px 0 #92400E, 0 8px 24px rgba(245, 158, 11, 0.5);
+      transition: all 0.1s ease;
+    }
+
+    .btn-spin:active {
+      transform: translateY(3px);
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 2px 0 #92400E;
+    }
+
+    .btn-spin:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-alert {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #EBDDFF;
+      text-align: center;
+      min-height: 24px;
+      text-shadow: 0 0 10px rgba(236, 72, 153, 0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-banner">
+    <!-- Direct HTML image link -->
+    <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=150&q=80"
+         alt="Wheel Trophy"
+         class="trophy-img"
+         onerror="this.src='https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=150&q=80'">
+    <h1>RULETA DE LA FORTUNA</h1>
+    <div class="subtitle">¡Gira la ruleta y gana premios al instante!</div>
+  </div>
+
+  <div class="wheel-wrapper">
+    <div class="wheel-pointer"></div>
+    <div class="wheel-center-cap">👑</div>
+    <canvas id="wheelCanvas" width="310" height="310"></canvas>
+  </div>
+
+  <button class="btn-spin" id="spinBtn" onclick="spinWheel()">
+    ¡GIRAR RULETA!
+  </button>
+
+  <div class="result-alert" id="resultAlert">Toca para probar tu fortuna</div>
+
+  <script>
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const SLICES = [
+      { text: '+250 COINS', color: '#EC4899', coins: 250, gems: 0, tickets: 0, xp: 20 },
+      { text: 'JACKPOT 1000', color: '#FFD700', coins: 1000, gems: 5, tickets: 1, xp: 50 },
+      { text: '+100 COINS', color: '#06B6D4', coins: 100, gems: 0, tickets: 0, xp: 10 },
+      { text: '2 TICKETS', color: '#10B981', coins: 0, gems: 0, tickets: 2, xp: 15 },
+      { text: '+500 COINS', color: '#8B5CF6', coins: 500, gems: 0, tickets: 0, xp: 30 },
+      { text: '20 GEMAS', color: '#F59E0B', coins: 0, gems: 20, tickets: 0, xp: 25 },
+      { text: '+150 COINS', color: '#AA0266', coins: 150, gems: 0, tickets: 0, xp: 10 },
+      { text: 'MEGA 2500', color: '#FFB95F', coins: 2500, gems: 10, tickets: 2, xp: 100 }
+    ];
+
+    let startAngle = 0;
+    const arc = Math.PI / (SLICES.length / 2);
+    let spinTimeout = null;
+    let spinAngleStart = 0;
+    let spinTime = 0;
+    let spinTimeTotal = 0;
+    let isSpinning = false;
+
+    function drawWheel() {
+      const outsideRadius = 150;
+      const textRadius = 100;
+      const insideRadius = 24;
+
+      ctx.clearRect(0, 0, 310, 310);
+
+      for (let i = 0; i < SLICES.length; i++) {
+        const angle = startAngle + i * arc;
+        ctx.fillStyle = SLICES[i].color;
+
+        ctx.beginPath();
+        ctx.arc(155, 155, outsideRadius, angle, angle + arc, false);
+        ctx.arc(155, 155, insideRadius, angle + arc, angle, true);
+        ctx.stroke();
+        ctx.fill();
+
+        ctx.save();
+        ctx.fillStyle = (SLICES[i].color === '#FFD700' || SLICES[i].color === '#FFB95F') ? '#472A00' : '#FFFFFF';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.translate(155 + Math.cos(angle + arc / 2) * textRadius,
+                      155 + Math.sin(angle + arc / 2) * textRadius);
+        ctx.rotate(angle + arc / 2 + Math.PI / 2);
+        const text = SLICES[i].text;
+        ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+        ctx.restore();
+      }
+    }
+
+    function spinWheel() {
+      if (isSpinning) return;
+      isSpinning = true;
+      document.getElementById('spinBtn').disabled = true;
+      document.getElementById('resultAlert').innerText = "¡La ruleta está girando...!";
+
+      if (window.AndroidBridge && window.AndroidBridge.vibrate) {
+        window.AndroidBridge.vibrate(40);
+      }
+
+      spinAngleStart = Math.random() * 10 + 15;
+      spinTime = 0;
+      spinTimeTotal = Math.random() * 2000 + 4000;
+      rotateWheel();
+    }
+
+    function rotateWheel() {
+      spinTime += 30;
+      if (spinTime >= spinTimeTotal) {
+        stopRotateWheel();
+        return;
+      }
+      const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+      startAngle += (spinAngle * Math.PI / 180);
+      drawWheel();
+      spinTimeout = setTimeout(rotateWheel, 30);
+    }
+
+    function stopRotateWheel() {
+      clearTimeout(spinTimeout);
+      isSpinning = false;
+      document.getElementById('spinBtn').disabled = false;
+
+      const degrees = startAngle * 180 / Math.PI + 90;
+      const arcd = arc * 180 / Math.PI;
+      const index = Math.floor((360 - degrees % 360) / arcd) % SLICES.length;
+      const prize = SLICES[index];
+
+      document.getElementById('resultAlert').innerText = `🎉 ¡Ganaste: ${prize.text}!`;
+
+      if (window.AndroidBridge) {
+        if (window.AndroidBridge.vibrate) window.AndroidBridge.vibrate(80);
+        if (window.AndroidBridge.onWheelPrize) {
+          window.AndroidBridge.onWheelPrize(prize.coins, prize.gems, prize.tickets, prize.xp, prize.text);
+        }
+      }
+    }
+
+    function easeOut(t, b, c, d) {
+      const ts = (t /= d) * t;
+      const tc = ts * t;
+      return b + c * (tc + -3 * ts + 3 * t);
+    }
+
+    drawWheel();
+  </script>
+</body>
+</html>

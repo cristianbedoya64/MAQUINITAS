@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Royal Arcade Slots</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background: radial-gradient(circle at 50% 20%, #2A1752, #120924 90%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #FFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    .header-banner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .arcade-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      box-shadow: 0 0 20px #FFD700;
+      margin-bottom: 6px;
+      border: 2px solid #FFD700;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 900;
+      color: #FFD700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+      letter-spacing: 1px;
+    }
+
+    .jackpot-meter {
+      background: rgba(28, 16, 51, 0.85);
+      border: 1.5px solid #06B6D4;
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.4);
+      padding: 6px 18px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #54DDFC;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Slot Machine Cabinet */
+    .slot-cabinet {
+      background: linear-gradient(180deg, #2A1752 0%, #180C2F 100%);
+      border: 3px solid #FFD700;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 24px rgba(245, 158, 11, 0.35);
+      border-radius: 24px;
+      padding: 20px 16px;
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .reels-container {
+      display: flex;
+      gap: 10px;
+      background: #0E051D;
+      border: 2px solid #A08E7A;
+      border-radius: 16px;
+      padding: 12px 8px;
+      width: 100%;
+      justify-content: center;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reel {
+      width: 90px;
+      height: 120px;
+      background: #FFFDF7;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      box-shadow: inset 0 4px 8px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.1s ease;
+    }
+
+    .reel-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .reel-symbol-img {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+    }
+
+    .payline-indicator {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 2px;
+      background: rgba(236, 72, 153, 0.5);
+      box-shadow: 0 0 8px #EC4899;
+      pointer-events: none;
+    }
+
+    /* Controls Deck */
+    .controls-deck {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .stat-badge {
+      background: rgba(20, 10, 38, 0.9);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      padding: 8px 12px;
+      text-align: center;
+      min-width: 75px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #D8C3AD;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-val {
+      font-size: 16px;
+      font-weight: 900;
+      color: #FFD700;
+      margin-top: 2px;
+    }
+
+    /* Giant Spin Button */
+    .btn-spin {
+      background: linear-gradient(180deg, #FFD700 0%, #F59E0B 100%);
+      color: #472A00;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      border: none;
+      border-radius: 9999px;
+      padding: 14px 34px;
+      cursor: pointer;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 6px 0 #92400E, 0 8px 20px rgba(245, 158, 11, 0.5);
+      transition: all 0.1s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-spin:active {
+      transform: translateY(4px);
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 2px 0 #92400E, 0 4px 10px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-spin:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Message / Status banner */
+    .status-msg {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      min-height: 22px;
+      color: #EBDDFF;
+      text-align: center;
+      text-shadow: 0 0 8px rgba(236, 72, 153, 0.6);
+    }
+
+    /* External quote ticker */
+    .trivia-bar {
+      margin-top: 16px;
+      background: rgba(18, 9, 36, 0.85);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 8px 12px;
+      width: 100%;
+      max-width: 380px;
+      font-size: 11px;
+      color: #D8C3AD;
+      text-align: center;
+    }
+
+    .bet-selector {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .bet-chip {
+      background: rgba(42, 23, 82, 0.8);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      color: #FFF;
+      border-radius: 9999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .bet-chip.active {
+      background: #F59E0B;
+      color: #472A00;
+      border-color: #FFD700;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+    }
+
+    /* Reel spinning animation */
+    .spinning {
+      animation: blurSpin 0.15s infinite linear;
+    }
+
+    @keyframes blurSpin {
+      0% { transform: translateY(-10px); filter: blur(2px); }
+      50% { transform: translateY(10px); filter: blur(4px); }
+      100% { transform: translateY(-10px); filter: blur(2px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-banner">
+    <!-- Direct HTML image links from Unsplash CDN as requested -->
+    <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=150&q=80"
+         alt="Royal Arcade Icon"
+         class="arcade-logo"
+         onerror="this.src='https://images.unsplash.com/photo-1596838132731-3301c3fd4317?auto=format&fit=crop&w=150&q=80'">
+    <h1>ROYAL SLOTS ARCADE</h1>
+    <div class="jackpot-meter">
+      <span>👑 POOL:</span>
+      <span id="jackpotDisplay">50,000 COINS</span>
+    </div>
+  </div>
+
+  <div class="slot-cabinet">
+    <div class="reels-container">
+      <div class="payline-indicator"></div>
+      
+      <div class="reel" id="reel0">
+        <div class="reel-content" id="symbol0">👑</div>
+      </div>
+      <div class="reel" id="reel1">
+        <div class="reel-content" id="symbol1">👑</div>
+      </div>
+      <div class="reel" id="reel2">
+        <div class="reel-content" id="symbol2">👑</div>
+      </div>
+    </div>
+
+    <div class="bet-selector">
+      <button class="bet-chip active" onclick="setBet(50)">50 COINS</button>
+      <button class="bet-chip" onclick="setBet(100)">100 COINS</button>
+      <button class="bet-chip" onclick="setBet(250)">250 COINS</button>
+    </div>
+
+    <div class="controls-deck">
+      <div class="stat-badge">
+        <div class="stat-label">Apuesta</div>
+        <div class="stat-val" id="betDisplay">50</div>
+      </div>
+
+      <button class="btn-spin" id="spinBtn" onclick="spinReels()">
+        <span>SPIN!</span>
+      </button>
+
+      <div class="stat-badge">
+        <div class="stat-label">Premio</div>
+        <div class="stat-val" id="winDisplay">0</div>
+      </div>
+    </div>
+
+    <div class="status-msg" id="statusMsg">¡Gira y alinea 3 símbolos para ganar!</div>
+  </div>
+
+  <div class="trivia-bar" id="triviaBar">
+    ✨ Consejo Real: ¡Las Coronas pagan 50x y los 77 pagan 25x!
+  </div>
+
+  <script>
+    // Pure JavaScript Game Engine
+    const SYMBOLS = [
+      { id: 'crown', char: '👑', payout: 50, name: 'Corona Real' },
+      { id: 'seven', char: '7️⃣', payout: 25, name: 'Triple Siete' },
+      { id: 'diamond', char: '💎', payout: 15, name: 'Diamante' },
+      { id: 'bell', char: '🔔', payout: 10, name: 'Campana de Oro' },
+      { id: 'clover', char: '🍀', payout: 6, name: 'Trébol de la Suerte' },
+      { id: 'cherry', char: '🍒', payout: 4, name: 'Cereza Arcade' }
+    ];
+
+    let currentBet = 50;
+    let isSpinning = false;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playBeep(freq, type = 'sine', duration = 0.1) {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function setBet(amount) {
+      if (isSpinning) return;
+      currentBet = amount;
+      document.getElementById('betDisplay').innerText = amount;
+      document.querySelectorAll('.bet-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.innerText.includes(amount.toString()));
+      });
+      playBeep(440, 'triangle', 0.05);
+    }
+
+    function spinReels() {
+      if (isSpinning) return;
+      isSpinning = true;
+      document.getElementById('spinBtn').disabled = true;
+      document.getElementById('statusMsg').innerText = "¡Girando rodillos reales...!";
+      document.getElementById('winDisplay').innerText = "0";
+
+      // Haptic feedback to Android
+      if (window.AndroidBridge && window.AndroidBridge.vibrate) {
+        window.AndroidBridge.vibrate(30);
+      }
+
+      const reels = [
+        document.getElementById('reel0'),
+        document.getElementById('reel1'),
+        document.getElementById('reel2')
+      ];
+
+      const symbolEls = [
+        document.getElementById('symbol0'),
+        document.getElementById('symbol1'),
+        document.getElementById('symbol2')
+      ];
+
+      reels.forEach(r => r.classList.add('spinning'));
+
+      // Weighted random outcome
+      const results = [];
+      const isWin = Math.random() < 0.45; // 45% hit rate for engaging gameplay
+      if (isWin) {
+        const winningSym = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+        results.push(winningSym, winningSym, winningSym);
+      } else {
+        results.push(
+          SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+          SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+          SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
+        );
+        // Ensure not accidentally 3 same
+        if (results[0].id === results[1].id && results[1].id === results[2].id) {
+          results[2] = SYMBOLS[(SYMBOLS.indexOf(results[2]) + 1) % SYMBOLS.length];
+        }
+      }
+
+      // Stop reels sequentially
+      const stopDelays = [600, 1100, 1600];
+      results.forEach((sym, idx) => {
+        setTimeout(() => {
+          reels[idx].classList.remove('spinning');
+          symbolEls[idx].innerText = sym.char;
+          playBeep(300 + idx * 120, 'square', 0.08);
+
+          if (idx === 2) {
+            evaluateOutcome(results);
+          }
+        }, stopDelays[idx]);
+      });
+    }
+
+    function evaluateOutcome(results) {
+      isSpinning = false;
+      document.getElementById('spinBtn').disabled = false;
+
+      const [s1, s2, s3] = results;
+      let winAmount = 0;
+      let xpEarned = 10;
+
+      if (s1.id === s2.id && s2.id === s3.id) {
+        // Jackpots
+        winAmount = currentBet * s1.payout;
+        xpEarned = 50;
+        document.getElementById('winDisplay').innerText = "+" + winAmount;
+        document.getElementById('statusMsg').innerHTML = `🎉 ¡JACKPOT! 3x ${s1.name} = +${winAmount} COINS!`;
+        playBeep(659, 'sine', 0.2);
+        setTimeout(() => playBeep(880, 'sine', 0.3), 150);
+
+        if (window.AndroidBridge) {
+          if (window.AndroidBridge.vibrate) window.AndroidBridge.vibrate(100);
+          if (window.AndroidBridge.onGameReward) {
+            window.AndroidBridge.onGameReward(winAmount, xpEarned, "Royal Slots: " + s1.name);
+          }
+        }
+      } else if (s1.id === s2.id || s2.id === s3.id) {
+        // Two of a kind match
+        const matching = (s1.id === s2.id) ? s1 : s2;
+        winAmount = Math.floor(currentBet * 1.5);
+        document.getElementById('winDisplay').innerText = "+" + winAmount;
+        document.getElementById('statusMsg').innerText = `✨ Par de ${matching.name}: +${winAmount} COINS`;
+        playBeep(523, 'sine', 0.15);
+
+        if (window.AndroidBridge && window.AndroidBridge.onGameReward) {
+          window.AndroidBridge.onGameReward(winAmount, xpEarned, "Royal Slots (Par)");
+        }
+      } else {
+        document.getElementById('statusMsg').innerText = "Casi... ¡Prueba otra tirada de la suerte!";
+        if (window.AndroidBridge && window.AndroidBridge.onGamePlayed) {
+          window.AndroidBridge.onGamePlayed(-currentBet, 5, "Royal Slots Spin");
+        }
+      }
+    }
+
+    // External API Integration: Fetch live tips / fortune trivia
+    async function fetchExternalTrivia() {
+      try {
+        const response = await fetch('https://dummyjson.com/quotes/random');
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('triviaBar').innerText = `💡 Fortuna: "${data.quote}" — ${data.author}`;
+        }
+      } catch (err) {
+        // Fallback
+        document.getElementById('triviaBar').innerText = "👑 Consejo: Alinea 3 Coronas para llevarte el premio mayor.";
+      }
+    }
+
+    window.onload = function() {
+      fetchExternalTrivia();
+    };
+  </script>
+</body>
+</html>

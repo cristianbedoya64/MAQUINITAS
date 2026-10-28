@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with coins, gems, tickets, levels, and admin role",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "coins": { "type": "number" },
+        "gems": { "type": "number" },
+        "tickets": { "type": "number" },
+        "level": { "type": "number" },
+        "xp": { "type": "number" },
+        "bingosWon": { "type": "number" },
+        "gamesPlayed": { "type": "number" },
+        "highScore": { "type": "number" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "selectedDauber": { "type": "string" },
+        "unlockedDaubers": { "type": "array" },
+        "lastLoginAt": { "type": "number" }
+      },
+      "required": ["id", "displayName", "email", "coins", "level", "role"]
+    },
+    "GameRoom": {
+      "title": "GameRoom",
+      "description": "Bingo and arcade live game rooms",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "ticketCost": { "type": "number" },
+        "prizePool": { "type": "number" },
+        "status": { "type": "string" },
+        "activePlayers": { "type": "number" }
+      },
+      "required": ["id", "name", "ticketCost", "prizePool", "status"]
+    },
+    "Jackpot": {
+      "title": "Jackpot",
+      "description": "Global royal progressive jackpot",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "currentPool": { "type": "number" },
+        "lastWinner": { "type": "string" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "currentPool", "lastWinner"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "$ref": "#/entities/User"
+    },
+    "/game_rooms/{roomId}": {
+      "$ref": "#/entities/GameRoom"
+    },
+    "/jackpots/{jackpotId}": {
+      "$ref": "#/entities/Jackpot"
+    }
+  }
+}

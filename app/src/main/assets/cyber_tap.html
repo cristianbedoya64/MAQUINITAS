@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cyber Reflex Arcade</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background: radial-gradient(circle at 50% 20%, #2A1752, #120924 90%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #FFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 900;
+      color: #54DDFC;
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+      margin-top: 8px;
+    }
+
+    .banner-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      border: 2px solid #06B6D4;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.6);
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      margin: 14px 0;
+    }
+
+    .stat-pill {
+      background: rgba(28, 16, 51, 0.9);
+      border: 1px solid #FFD700;
+      border-radius: 9999px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #FFD700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 85px);
+      grid-gap: 12px;
+      margin-top: 10px;
+    }
+
+    .tap-cell {
+      width: 85px;
+      height: 85px;
+      background: rgba(42, 23, 82, 0.6);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      transition: all 0.1s ease;
+    }
+
+    .tap-cell.active-target {
+      background: #EC4899;
+      border-color: #FFD700;
+      box-shadow: 0 0 20px #EC4899, inset 0 0 10px #FFF;
+      animation: pulseTarget 0.4s infinite alternate;
+    }
+
+    @keyframes pulseTarget {
+      0% { transform: scale(0.96); }
+      100% { transform: scale(1.05); }
+    }
+
+    .btn-start {
+      margin-top: 24px;
+      background: linear-gradient(180deg, #FFD700 0%, #F59E0B 100%);
+      color: #472A00;
+      font-size: 17px;
+      font-weight: 900;
+      border: none;
+      border-radius: 9999px;
+      padding: 12px 36px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Direct HTML image link -->
+  <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=150&q=80"
+       alt="Cyber Reflex"
+       class="banner-img"
+       onerror="this.src='https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=150&q=80'">
+
+  <h1>CYBER REFLEX ARCADE</h1>
+
+  <div class="stats-bar">
+    <div class="stat-pill">⏱️ <span id="timerVal">20s</span></div>
+    <div class="stat-pill">⚡ PUNTOS: <span id="scoreVal">0</span></div>
+  </div>
+
+  <div class="grid-container" id="grid">
+    <!-- 9 cells -->
+    <div class="tap-cell" data-idx="0" onclick="handleTap(0)">💎</div>
+    <div class="tap-cell" data-idx="1" onclick="handleTap(1)">💎</div>
+    <div class="tap-cell" data-idx="2" onclick="handleTap(2)">💎</div>
+    <div class="tap-cell" data-idx="3" onclick="handleTap(3)">💎</div>
+    <div class="tap-cell" data-idx="4" onclick="handleTap(4)">💎</div>
+    <div class="tap-cell" data-idx="5" onclick="handleTap(5)">💎</div>
+    <div class="tap-cell" data-idx="6" onclick="handleTap(6)">💎</div>
+    <div class="tap-cell" data-idx="7" onclick="handleTap(7)">💎</div>
+    <div class="tap-cell" data-idx="8" onclick="handleTap(8)">💎</div>
+  </div>
+
+  <button class="btn-start" id="startBtn" onclick="startGame()">¡INICIAR RETO!</button>
+
+  <script>
+    let score = 0;
+    let timeLeft = 20;
+    let timerId = null;
+    let activeCell = -1;
+    let isPlaying = false;
+
+    function startGame() {
+      if (isPlaying) return;
+      isPlaying = true;
+      score = 0;
+      timeLeft = 20;
+      document.getElementById('scoreVal').innerText = score;
+      document.getElementById('timerVal').innerText = timeLeft + 's';
+      document.getElementById('startBtn').style.display = 'none';
+
+      timerId = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timerVal').innerText = timeLeft + 's';
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+
+      spawnTarget();
+    }
+
+    function spawnTarget() {
+      if (!isPlaying) return;
+      const cells = document.querySelectorAll('.tap-cell');
+      cells.forEach(c => {
+        c.classList.remove('active-target');
+        c.innerText = '💎';
+      });
+
+      activeCell = Math.floor(Math.random() * 9);
+      cells[activeCell].classList.add('active-target');
+      cells[activeCell].innerText = '⚡';
+    }
+
+    function handleTap(idx) {
+      if (!isPlaying) return;
+      if (idx === activeCell) {
+        score += 10;
+        document.getElementById('scoreVal').innerText = score;
+        if (window.AndroidBridge && window.AndroidBridge.vibrate) {
+          window.AndroidBridge.vibrate(25);
+        }
+        spawnTarget();
+      }
+    }
+
+    function endGame() {
+      clearInterval(timerId);
+      isPlaying = false;
+      const cells = document.querySelectorAll('.tap-cell');
+      cells.forEach(c => {
+        c.classList.remove('active-target');
+        c.innerText = '💎';
+      });
+      document.getElementById('startBtn').style.display = 'block';
+      document.getElementById('startBtn').innerText = 'JUGAR DE NUEVO';
+
+      const coinsEarned = score * 5;
+      const xpEarned = Math.floor(score * 1.5);
+
+      if (window.AndroidBridge && window.AndroidBridge.onGameReward) {
+        window.AndroidBridge.onGameReward(coinsEarned, xpEarned, "Cyber Reflex (" + score + " pts)");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "name": "Royal Arcade Bingo",
+  "description": "Juego arcade y bingo en tiempo real con salas, minijuegos interactivos HTML5/JS, progreso en la nube y panel de administración.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
